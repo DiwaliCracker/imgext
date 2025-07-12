@@ -72,7 +72,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Pop-up modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -112,7 +111,6 @@
             object-fit: contain;
         }
 
-        /* Modern buttons for modal */
         .close, .prev, .next {
             position: absolute;
             top: 50%;
@@ -147,7 +145,6 @@
             color: white;
         }
 
-        /* Background blur effect */
         .blur-bg {
             position: fixed;
             top: 0;
@@ -169,7 +166,6 @@
 </head>
 <body>
     <div id="blur-bg" class="blur-bg"></div>
-
     <div id="gallery" class="gallery"></div>
 
     <div id="myModal" class="modal">
@@ -183,148 +179,145 @@
 
     <script>
         let currentIndex = 0;
-let imageUrls = [];
+        let imageUrls = [];
 
-function getQueryParams() {
-    const params = new URLSearchParams(window.location.search);
-    return {
-        imge: params.get('imge'),
-        dgt: parseInt(params.get('dgt')),
-        ext: params.get('ext'),
-        frm: parseInt(params.get('frm')),
-        tl: parseInt(params.get('tl'))
-    };
-}
-
-function generateImageUrls(baseUrl, digits, ext, from, till) {
-    const urls = [];
-    for (let i = from; i <= till; i++) {
-        const paddedNumber = String(i).padStart(digits, '0');
-        urls.push(`${baseUrl}${paddedNumber}.${ext}`);
-    }
-    return urls;
-}
-
-function loadImage(url, container, index) {
-    const img = new Image();
-    img.src = url;
-
-    const loader = document.createElement('div');
-    loader.classList.add('loader');
-    container.appendChild(loader);
-
-    img.onload = () => {
-        img.classList.add('loaded');
-        container.removeChild(loader); // Remove loader after image is loaded
-    };
-
-    img.onerror = () => {
-        container.remove(); // Remove image container if image fails to load
-        imageUrls.splice(index, 1); // Remove the failed URL from the array
-    };
-
-    img.onclick = () => {
-        currentIndex = index;
-        showModal();
-    };
-
-    container.onmouseover = () => {
-        const blurBg = document.getElementById('blur-bg');
-        blurBg.style.backgroundImage = `url(${url})`;
-        blurBg.classList.add('show');
-    };
-
-    container.onmouseleave = () => {
-        const blurBg = document.getElementById('blur-bg');
-        blurBg.classList.remove('show');
-    };
-
-    container.appendChild(img);
-}
-
-function loadImages() {
-    const { imge, dgt, ext, frm, tl } = getQueryParams();
-    imageUrls = generateImageUrls(imge, dgt, ext, frm, tl);
-
-    const gallery = document.getElementById('gallery');
-
-    imageUrls.forEach((url, index) => {
-        const imgContainer = document.createElement('div');
-        imgContainer.classList.add('image-container');
-        gallery.appendChild(imgContainer);
-
-        setTimeout(() => {
-            loadImage(url, imgContainer, index);
-        }, index * 100); // Stagger loading
-    });
-}
-
-function showModal() {
-    const modal = document.getElementById('myModal');
-    const modalImage = document.getElementById('modalImage');
-    modalImage.src = imageUrls[currentIndex];
-    modal.classList.add('show');
-    modal.style.display = 'flex';
-}
-
-function closeModal() {
-    const modal = document.getElementById('myModal');
-    modal.classList.remove('show');
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300);
-}
-
-function showNextImage() {
-    currentIndex = (currentIndex + 1) % imageUrls.length;
-    showModal();
-}
-
-function showPrevImage() {
-    currentIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length;
-    showModal();
-}
-
-// Keyboard Navigation (Left and Right Arrows)
-document.addEventListener('keydown', function(event) {
-    const modal = document.getElementById('myModal');
-    if (modal.classList.contains('show')) {
-        if (event.key === 'ArrowLeft') {
-            showPrevImage(); // Left arrow key
-        } else if (event.key === 'ArrowRight') {
-            showNextImage(); // Right arrow key
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                imge: params.get('imge'),
+                dgt: parseInt(params.get('dgt')),
+                ext: params.get('ext'),
+                frm: parseInt(params.get('frm')),
+                tl: parseInt(params.get('tl'))
+            };
         }
-    }
-});
 
-// Swipe Gesture Handling for Mobile
-let touchStartX = 0;
-let touchEndX = 0;
+        function generateImageUrls(baseUrl, digits, ext, from, till) {
+            const urls = [];
+            for (let i = from; i <= till; i++) {
+                const paddedNumber = String(i).padStart(digits, '0');
+                urls.push(`${baseUrl}${paddedNumber}${ext}`);
+            }
+            return urls;
+        }
 
-function handleGesture() {
-    if (touchEndX < touchStartX) {
-        showNextImage(); // Swipe left, show next image
-    }
-    if (touchEndX > touchStartX) {
-        showPrevImage(); // Swipe right, show previous image
-    }
-}
+        function loadImage(url, container, index) {
+            const img = new Image();
+            img.src = url;
 
-document.getElementById('myModal').addEventListener('touchstart', function(event) {
-    touchStartX = event.changedTouches[0].screenX;
-});
+            const loader = document.createElement('div');
+            loader.classList.add('loader');
+            container.appendChild(loader);
 
-document.getElementById('myModal').addEventListener('touchend', function(event) {
-    touchEndX = event.changedTouches[0].screenX;
-    handleGesture(); // Handle the swipe gesture
-});
+            img.onload = () => {
+                img.classList.add('loaded');
+                container.removeChild(loader);
+            };
 
-document.querySelector('.close').onclick = closeModal;
-document.querySelector('.next').onclick = showNextImage;
-document.querySelector('.prev').onclick = showPrevImage;
+            img.onerror = () => {
+                container.remove();
+                imageUrls.splice(index, 1);
+            };
 
-window.onload = loadImages;
+            img.onclick = () => {
+                currentIndex = index;
+                showModal();
+            };
 
+            container.onmouseover = () => {
+                const blurBg = document.getElementById('blur-bg');
+                blurBg.style.backgroundImage = `url(${url})`;
+                blurBg.classList.add('show');
+            };
+
+            container.onmouseleave = () => {
+                const blurBg = document.getElementById('blur-bg');
+                blurBg.classList.remove('show');
+            };
+
+            container.appendChild(img);
+        }
+
+        function loadImages() {
+            const { imge, dgt, ext, frm, tl } = getQueryParams();
+            imageUrls = generateImageUrls(imge, dgt, ext, frm, tl);
+
+            const gallery = document.getElementById('gallery');
+
+            imageUrls.forEach((url, index) => {
+                const imgContainer = document.createElement('div');
+                imgContainer.classList.add('image-container');
+                gallery.appendChild(imgContainer);
+
+                setTimeout(() => {
+                    loadImage(url, imgContainer, index);
+                }, index * 100);
+            });
+        }
+
+        function showModal() {
+            const modal = document.getElementById('myModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imageUrls[currentIndex];
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function showNextImage() {
+            currentIndex = (currentIndex + 1) % imageUrls.length;
+            showModal();
+        }
+
+        function showPrevImage() {
+            currentIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length;
+            showModal();
+        }
+
+        document.addEventListener('keydown', function(event) {
+            const modal = document.getElementById('myModal');
+            if (modal.classList.contains('show')) {
+                if (event.key === 'ArrowLeft') {
+                    showPrevImage();
+                } else if (event.key === 'ArrowRight') {
+                    showNextImage();
+                }
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function handleGesture() {
+            if (touchEndX < touchStartX) {
+                showNextImage();
+            }
+            if (touchEndX > touchStartX) {
+                showPrevImage();
+            }
+        }
+
+        document.getElementById('myModal').addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.getElementById('myModal').addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleGesture();
+        });
+
+        document.querySelector('.close').onclick = closeModal;
+        document.querySelector('.next').onclick = showNextImage;
+        document.querySelector('.prev').onclick = showPrevImage;
+
+        window.onload = loadImages;
     </script>
 </body>
 </html>
